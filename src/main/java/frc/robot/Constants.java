@@ -16,12 +16,13 @@ public final class Constants {
     public static final double stickDeadband = 0.1;
 
     public static final class Swerve {
-        public static final int pigeonID = 1;
+        public static final int pigeonID = 1; //TODO: Will have to wait until we wire the robot
 
         public static final COTSTalonFXSwerveConstants chosenModule =  //TODO: This must be tuned to specific robot
-        COTSTalonFXSwerveConstants.SDS.MK4i.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L2);
+        COTSTalonFXSwerveConstants.SDS.MK4.Falcon500(COTSTalonFXSwerveConstants.SDS.MK4.driveRatios.L2);//What I would Like to get in terms of motor and modules
 
         /* Drivetrain Constants */
+        //Will have to wait until we get the robot built
         public static final double trackWidth = Units.inchesToMeters(21.73); //TODO: This must be tuned to specific robot
         public static final double wheelBase = Units.inchesToMeters(21.73); //TODO: This must be tuned to specific robot
         public static final double wheelCircumference = chosenModule.wheelCircumference;
@@ -73,6 +74,7 @@ public final class Constants {
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values From SYSID */
+        //Lock the wheels foward and run sysid as normal you would for a tank drive
         public static final double driveKS = 0.32; //TODO: This must be tuned to specific robot
         public static final double driveKV = 1.51;
         public static final double driveKA = 0.27;
@@ -88,6 +90,9 @@ public final class Constants {
         public static final NeutralModeValue driveNeutralMode = NeutralModeValue.Brake;
 
         /* Module Specific Constants */
+
+        //Will have to wait until we wire the robot
+
         /* Front Left Module - Module 0 */
         public static final class Mod0 { //TODO: This must be tuned to specific robot
             public static final int driveMotorID = 1;
@@ -129,6 +134,7 @@ public final class Constants {
         }
     }
 
+    //Will have to wait until we build the robot
     public static final class AutoConstants { //TODO: The below constants are used in the example auto, and must be tuned to specific robot
         public static final double kMaxSpeedMetersPerSecond = 3;
         public static final double kMaxAccelerationMetersPerSecondSquared = 3;

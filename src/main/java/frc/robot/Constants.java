@@ -19,7 +19,7 @@ public final class Constants {
         public static final int pigeonID = 0; 
 
         public static final COTSTalonFXSwerveConstants chosenModule =  
-        COTSTalonFXSwerveConstants.SDS.MK4.KrakenX60(COTSTalonFXSwerveConstants.SDS.MK4.driveRatios.L3);
+        COTSTalonFXSwerveConstants.SDS.MK4i.KrakenX60(COTSTalonFXSwerveConstants.SDS.MK4i.driveRatios.L3);
 
         /* Drivetrain Constants */
         //Will have to wait until we get the robot built

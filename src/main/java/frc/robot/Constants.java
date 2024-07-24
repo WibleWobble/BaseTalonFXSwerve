@@ -14,6 +14,8 @@ import frc.lib.util.SwerveModuleConstants;
 
 public final class Constants {
     public static final double stickDeadband = 0.1;
+    public static final String limelightName = "limelight-main";
+    public static final boolean useMegaTag2 = true; //Set to false to use MegaTag1
 
     public static final class Swerve {
         public static final int pigeonID = 0; 
@@ -90,9 +92,6 @@ public final class Constants {
         public static final NeutralModeValue driveNeutralMode = NeutralModeValue.Brake;
 
         /* Module Specific Constants */
-
-        //Will have to wait until we wire the robot
-
         /* Front Left Module - Module 0 */
         public static final class Mod0 {
             public static final int driveMotorID = 1;

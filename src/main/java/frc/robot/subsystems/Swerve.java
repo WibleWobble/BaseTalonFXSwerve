@@ -27,14 +27,7 @@ public class Swerve extends SubsystemBase {
     public Field2d m_Field = new Field2d();//Creates a field object to visualize the robot pose in smartdashboard. 
     public Pigeon2 gyro;
 
-    private final SwerveDrivePoseEstimator m_PoseEstimator = 
-        new SwerveDrivePoseEstimator(
-        Constants.Swerve.swerveKinematics, 
-        getGyroYaw(), 
-        getModulePositions(), 
-        getPose(),
-          VecBuilder.fill(0.05, 0.05, Math.toRadians(5)),
-          VecBuilder.fill(0.5, 0.5, Math.toRadians(30)));
+    private final SwerveDrivePoseEstimator m_PoseEstimator;
     
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID);
@@ -49,6 +42,14 @@ public class Swerve extends SubsystemBase {
         };
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
+        m_PoseEstimator = 
+            new SwerveDrivePoseEstimator(
+                Constants.Swerve.swerveKinematics, 
+                getGyroYaw(), 
+                getModulePositions(), 
+                getOdometryPose(),
+                    VecBuilder.fill(0.05, 0.05, Math.toRadians(5)),
+                    VecBuilder.fill(0.5, 0.5, Math.toRadians(30)));
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
@@ -97,12 +98,16 @@ public class Swerve extends SubsystemBase {
         return positions;
     }
 
-    public Pose2d getPose() {
+    public Pose2d getEstimatedPose() {
+        return m_PoseEstimator.getEstimatedPosition();
+    }
+
+    public Pose2d getOdometryPose() {
         return swerveOdometry.getPoseMeters();
     }
 
     public void setPose(Pose2d pose) {
-        swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), pose);
+        m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
     }
 
     public Rotation2d getHeading(){
@@ -110,11 +115,11 @@ public class Swerve extends SubsystemBase {
     }
 
     public void setHeading(Rotation2d heading){
-        swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), heading));
+        m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), heading)); 
     }
 
     public void zeroHeading(){
-        swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
+        m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
     }
 
     public Rotation2d getGyroYaw() {
@@ -166,7 +171,7 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic(){
         swerveOdometry.update(getGyroYaw(), getModulePositions());
-        m_Field.setRobotPose(swerveOdometry.getPoseMeters());
+        m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
         SmartDashboard.putData("Feild", m_Field);
 
         for(SwerveModule mod : mSwerveMods){

@@ -5,7 +5,6 @@ import frc.robot.Constants;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
@@ -22,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Swerve extends SubsystemBase {
-    public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public Field2d m_Field = new Field2d();//Creates a field object to visualize the robot pose in smartdashboard. 
     public Pigeon2 gyro;
@@ -41,13 +39,12 @@ public class Swerve extends SubsystemBase {
             new SwerveModule(3, Constants.Swerve.Mod3.constants)
         };
 
-        swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
         m_PoseEstimator = 
             new SwerveDrivePoseEstimator(
                 Constants.Swerve.swerveKinematics, 
                 getGyroYaw(), 
                 getModulePositions(), 
-                getOdometryPose(),
+                new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)),
                     VecBuilder.fill(0.05, 0.05, Math.toRadians(5)),
                     VecBuilder.fill(0.5, 0.5, Math.toRadians(30)));
     }
@@ -98,12 +95,8 @@ public class Swerve extends SubsystemBase {
         return positions;
     }
 
-    public Pose2d getEstimatedPose() {
+    public Pose2d getPose() {
         return m_PoseEstimator.getEstimatedPosition();
-    }
-
-    public Pose2d getOdometryPose() {
-        return swerveOdometry.getPoseMeters();
     }
 
     public void setPose(Pose2d pose) {
@@ -132,7 +125,7 @@ public class Swerve extends SubsystemBase {
         }
     }
 
-    public void updateOdometry(){
+    public void updateVisionLocalization(){
         m_PoseEstimator.update(getGyroYaw(), getModulePositions());
 
         boolean useMegaTag2 = Constants.useMegaTag2; //This is a work around because otherwise I get dead code warnings and it looks bad. 
@@ -170,7 +163,7 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic(){
-        swerveOdometry.update(getGyroYaw(), getModulePositions());
+        updateVisionLocalization();
         m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
         SmartDashboard.putData("Feild", m_Field);
 

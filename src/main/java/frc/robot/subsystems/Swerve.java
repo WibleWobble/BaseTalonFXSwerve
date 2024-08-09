@@ -49,6 +49,7 @@ public class Swerve extends SubsystemBase {
                     VecBuilder.fill(0.5, 0.5, Math.toRadians(30)));
     }
 
+    /*Drive Function */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
         SwerveModuleState[] swerveModuleStates =
             Constants.Swerve.swerveKinematics.toSwerveModuleStates(
@@ -70,68 +71,70 @@ public class Swerve extends SubsystemBase {
         }
     }    
 
-    /* Used by SwerveControllerCommand in Auto */
-    public void setModuleStates(SwerveModuleState[] desiredStates) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Swerve.maxSpeed);
-        
-        for(SwerveModule mod : mSwerveMods){
-            mod.setDesiredState(desiredStates[mod.moduleNumber], false);
-        }
-    }
-
+    /*Get Info Functions */
+    public Pose2d getPose() {return m_PoseEstimator.getEstimatedPosition();}
+    public Rotation2d getGyroYaw() {return Rotation2d.fromDegrees(gyro.getYaw().getValue());}
+    public Rotation2d getHeading(){return getPose().getRotation();}
+    
     public SwerveModuleState[] getModuleStates(){
         SwerveModuleState[] states = new SwerveModuleState[4];
         for(SwerveModule mod : mSwerveMods){
             states[mod.moduleNumber] = mod.getState();
         }
-        return states;
-    }
+        return states;}
 
     public SwerveModulePosition[] getModulePositions(){
         SwerveModulePosition[] positions = new SwerveModulePosition[4];
         for(SwerveModule mod : mSwerveMods){
             positions[mod.moduleNumber] = mod.getPosition();
         }
-        return positions;
-    }
+        return positions;}
 
-    public Pose2d getPose() {
-        return m_PoseEstimator.getEstimatedPosition();
-    }
-
-    public void setPose(Pose2d pose) {
-        m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
-    }
-
-    public Rotation2d getHeading(){
-        return getPose().getRotation();
-    }
-
+    /*Setter Funtions */
+    public void setPose(Pose2d pose) {m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);}
     public void setHeading(Rotation2d heading){
         m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), heading)); 
     }
 
+    public void setModuleStates(SwerveModuleState[] desiredStates) { //Used in example auto
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Swerve.maxSpeed);   
+        for(SwerveModule mod : mSwerveMods){
+            mod.setDesiredState(desiredStates[mod.moduleNumber], false);
+        }
+    }
+
+    /*Zero/Reset Functions */
     public void zeroHeading(){
         m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
     }
-
-    public Rotation2d getGyroYaw() {
-        return Rotation2d.fromDegrees(gyro.getYaw().getValue());
-    }
-
+    
     public void resetModulesToAbsolute(){
         for(SwerveModule mod : mSwerveMods){
             mod.resetToAbsolute();
         }
     }
 
+    @Override
+    public void periodic(){
+        updateVisionLocalization();
+        m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
+        SmartDashboard.putData("Feild", m_Field);
+
+        for(SwerveModule mod : mSwerveMods){
+            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
+            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
+            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
+        }
+    }
+
+    /*Vision Functions */
     public void updateVisionLocalization(){
         m_PoseEstimator.update(getGyroYaw(), getModulePositions());
 
         boolean useMegaTag2 = Constants.useMegaTag2; //This is a work around because otherwise I get dead code warnings and it looks bad. 
         boolean doRejectUpdate = false;
         if(useMegaTag2 == false){
-            LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+            LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.limelightName);
             
             if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1){
                 if(mt1.rawFiducials[0].ambiguity > .7){doRejectUpdate = true;}
@@ -158,19 +161,6 @@ public class Swerve extends SubsystemBase {
                     mt2.pose,
                     mt2.timestampSeconds);
             }
-        }
-    }
-
-    @Override
-    public void periodic(){
-        updateVisionLocalization();
-        m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
-        SmartDashboard.putData("Feild", m_Field);
-
-        for(SwerveModule mod : mSwerveMods){
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
         }
     }
 }

@@ -13,6 +13,15 @@ import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.lib.util.SwerveModuleConstants;
 
 public final class Constants {
+    public static final class RegistrationSafety{
+        public static final boolean safetyZoneEnabled = true;
+        public static final double safetyZoneMinX = 0;
+        public static final double safetyZoneMaxX = 1;
+        public static final double safetyZoneMinY = 0;
+        public static final double safetyZoneMaxY = 1;
+
+        public static final double outsideZoneMultiplier = 0.1;
+    }
     public static final double stickDeadband = 0.1;
     public static final String limelightName = "limelight-main";
     public static final boolean useMegaTag2 = true; //Set to false to use MegaTag1

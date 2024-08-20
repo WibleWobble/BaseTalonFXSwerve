@@ -51,6 +51,20 @@ public class Swerve extends SubsystemBase {
 
     /*Drive Function */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
+        /*If robot exits the zone then it will move very slowly */
+        if(Constants.RegistrationSafety.safetyZoneEnabled){
+            Pose2d estimatedPose = getPose();
+            if(
+            estimatedPose.getX() < Constants.RegistrationSafety.safetyZoneMinX || 
+            estimatedPose.getX() > Constants.RegistrationSafety.safetyZoneMaxX ||
+            estimatedPose.getY() < Constants.RegistrationSafety.safetyZoneMinY ||
+            estimatedPose.getY() > Constants.RegistrationSafety.safetyZoneMaxY  ){
+                double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier; //Set the value in a variable so the lines are not so long
+                translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
+                rotation = rotation * multiplier;
+            }
+        }
+        
         SwerveModuleState[] swerveModuleStates =
             Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                 fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(

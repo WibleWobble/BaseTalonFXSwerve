@@ -16,9 +16,9 @@ public final class Constants {
     public static final class RegistrationSafety{
         public static final boolean safetyZoneEnabled = true;
         public static final double safetyZoneMinX = 0;
-        public static final double safetyZoneMaxX = 1;
+        public static final double safetyZoneMaxX = 2;
         public static final double safetyZoneMinY = 0;
-        public static final double safetyZoneMaxY = 1;
+        public static final double safetyZoneMaxY = 99; // TODO: FIND THE ACTUAL VALUES
 
         public static final double outsideZoneMultiplier = 0.1;
     }

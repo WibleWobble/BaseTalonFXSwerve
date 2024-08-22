@@ -55,12 +55,12 @@ public class Swerve extends SubsystemBase {
         if(Constants.RegistrationSafety.safetyZoneEnabled){
             Pose2d estimatedPose = getPose();
             if(
-            estimatedPose.getX() < Constants.RegistrationSafety.safetyZoneMinX || 
-            estimatedPose.getX() > Constants.RegistrationSafety.safetyZoneMaxX ||
-            estimatedPose.getY() < Constants.RegistrationSafety.safetyZoneMinY ||
-            estimatedPose.getY() > Constants.RegistrationSafety.safetyZoneMaxY  ){
+            Math.abs(estimatedPose.getX()) < Constants.RegistrationSafety.safetyZoneMinX || 
+            Math.abs(estimatedPose.getX()) > Constants.RegistrationSafety.safetyZoneMaxX ||
+            Math.abs(estimatedPose.getY()) < Constants.RegistrationSafety.safetyZoneMinY ||
+            Math.abs(estimatedPose.getY()) > Constants.RegistrationSafety.safetyZoneMaxY  ){
                 double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier; //Set the value in a variable so the lines are not so long
-                translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
+                translation = new Translation2d(translation.getX() * 0.1, translation.getY() * 0.1);
                 rotation = 0; // UNTESTED
             }
         }

@@ -54,14 +54,13 @@ public class Swerve extends SubsystemBase {
         /*If robot exits the zone then it will move very slowly */
         if(Constants.RegistrationSafety.safetyZoneEnabled){
             Pose2d estimatedPose = getPose();
-            if(
-            Math.abs(estimatedPose.getX()) < Constants.RegistrationSafety.safetyZoneMinX || 
-            Math.abs(estimatedPose.getX()) > Constants.RegistrationSafety.safetyZoneMaxX ||
-            Math.abs(estimatedPose.getY()) < Constants.RegistrationSafety.safetyZoneMinY ||
-            Math.abs(estimatedPose.getY()) > Constants.RegistrationSafety.safetyZoneMaxY  ){
-                double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier; //Set the value in a variable so the lines are not so long
-                translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
-                rotation = 0; // UNTESTED
+            if (estimatedPose.getX() < Constants.RegistrationSafety.safetyZoneMinX || 
+                estimatedPose.getX() > Constants.RegistrationSafety.safetyZoneMaxX ||
+                estimatedPose.getY() < Constants.RegistrationSafety.safetyZoneMinY ||
+                estimatedPose.getY() > Constants.RegistrationSafety.safetyZoneMaxY) {
+                    double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier; //Set the value in a variable so the lines are not so long
+                    translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
+                    rotation = 0; // UNTESTED
             }
         }
         

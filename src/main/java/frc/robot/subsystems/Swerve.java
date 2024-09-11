@@ -26,7 +26,7 @@ public class Swerve extends SubsystemBase {
     public Pigeon2 gyro;
 
     private final SwerveDrivePoseEstimator m_PoseEstimator;
-    
+
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID);
         gyro.getConfigurator().apply(new Pigeon2Configuration());
@@ -52,16 +52,23 @@ public class Swerve extends SubsystemBase {
     /*Drive Function */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
         /*If robot exits the zone then it will move very slowly */
+        if(fieldRelative){fieldRelative = false;}
+        else{fieldRelative = true; }
         if(Constants.RegistrationSafety.safetyZoneEnabled){
             Pose2d estimatedPose = getPose();
             if(
-            Math.abs(estimatedPose.getX()) < Constants.RegistrationSafety.safetyZoneMinX || 
-            Math.abs(estimatedPose.getX()) > Constants.RegistrationSafety.safetyZoneMaxX ||
-            Math.abs(estimatedPose.getY()) < Constants.RegistrationSafety.safetyZoneMinY ||
-            Math.abs(estimatedPose.getY()) > Constants.RegistrationSafety.safetyZoneMaxY  ){
-                double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier; //Set the value in a variable so the lines are not so long
+            estimatedPose.getX() > Constants.RegistrationSafety.safetyZoneMinX && 
+            estimatedPose.getX() < Constants.RegistrationSafety.safetyZoneMaxX &&
+            estimatedPose.getY() > Constants.RegistrationSafety.safetyZoneMinY &&
+            estimatedPose.getY() < Constants.RegistrationSafety.safetyZoneMaxY  )
+            {
+                double multiplier = 0.1;
                 translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
-                rotation = 0; // UNTESTED
+                rotation = rotation * 0.25;
+            }else{
+                double multiplier = 0.1;
+                translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
+                rotation = rotation * 0.25;
             }
         }
         

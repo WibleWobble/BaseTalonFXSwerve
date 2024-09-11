@@ -15,15 +15,16 @@ import frc.lib.util.SwerveModuleConstants;
 public final class Constants {
     public static final class RegistrationSafety{
         public static final boolean safetyZoneEnabled = true;
-        public static final double safetyZoneMinX = 0;
-        public static final double safetyZoneMaxX = 2;
-        public static final double safetyZoneMinY = 0;
-        public static final double safetyZoneMaxY = 99; // TODO: FIND THE ACTUAL VALUES
+        public static final double safetyZoneMinX = -3.1244;
+        public static final double safetyZoneMaxX = -1.5;
+        public static final double safetyZoneMinY = 5.416;
+        public static final double safetyZoneMaxY = 5.912; // TODO: FIND THE ACTUAL VALUES
 
         public static final double outsideZoneMultiplier = 0.1;
     }
+    
     public static final double stickDeadband = 0.1;
-    public static final String limelightName = "limelight-main";
+    public static final String limelightName = "limelight";
     public static final boolean useMegaTag2 = true; //Set to false to use MegaTag1
 
     public static final class Swerve {

@@ -51,22 +51,18 @@ public class Swerve extends SubsystemBase {
 
     /*Drive Function */
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        /*If robot exits the zone then it will move very slowly */
         if(fieldRelative){fieldRelative = false;}
         else{fieldRelative = true; }
+        
+        /*If robot exits the zone then it will move very slowly */
         if(Constants.RegistrationSafety.safetyZoneEnabled){
-            Pose2d estimatedPose = getPose();
-            if(
-            estimatedPose.getX() > Constants.RegistrationSafety.safetyZoneMinX && 
-            estimatedPose.getX() < Constants.RegistrationSafety.safetyZoneMaxX &&
-            estimatedPose.getY() > Constants.RegistrationSafety.safetyZoneMinY &&
-            estimatedPose.getY() < Constants.RegistrationSafety.safetyZoneMaxY  )
+            if(isInZone())
             {
-                double multiplier = 0.1;
+                double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier;
                 translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
                 rotation = rotation * 0.25;
             }else{
-                double multiplier = 0.1;
+                double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier;
                 translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
                 rotation = rotation * 0.25;
             }
@@ -110,6 +106,19 @@ public class Swerve extends SubsystemBase {
             positions[mod.moduleNumber] = mod.getPosition();
         }
         return positions;}
+
+    public boolean isInZone(){
+        Pose2d estimatedPose = getPose();
+        if(
+            estimatedPose.getX() > Constants.RegistrationSafety.safetyZoneMinX && 
+            estimatedPose.getX() < Constants.RegistrationSafety.safetyZoneMaxX &&
+            estimatedPose.getY() > Constants.RegistrationSafety.safetyZoneMinY &&
+            estimatedPose.getY() < Constants.RegistrationSafety.safetyZoneMaxY  ){
+                return true;
+            } else {
+                return false;
+            }
+    }
 
     /*Setter Funtions */
     public void setPose(Pose2d pose) {m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);}

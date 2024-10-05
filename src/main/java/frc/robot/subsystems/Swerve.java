@@ -99,20 +99,6 @@ public class Swerve extends SubsystemBase {
         if(fieldRelative){fieldRelative = false;}
         else{fieldRelative = true; }
         
-        /*If robot exits the zone then it will move very slowly */
-        if(Constants.RegistrationSafety.safetyZoneEnabled){
-            if(isInZone())
-            {
-                double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier;
-                translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
-                rotation = rotation * 0.25;
-            }else{
-                double multiplier = Constants.RegistrationSafety.outsideZoneMultiplier;
-                translation = new Translation2d(translation.getX() * multiplier, translation.getY() * multiplier);
-                rotation = rotation * 0.25;
-            }
-        }
-        
         SwerveModuleState[] swerveModuleStates =
             Constants.Swerve.swerveKinematics.toSwerveModuleStates(
                 fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -193,6 +179,7 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic(){
         updateVisionLocalization();
+        m_PoseEstimator.update(getGyroYaw(), getModulePositions());
         m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
         SmartDashboard.putData("Feild", m_Field);
 
@@ -205,8 +192,6 @@ public class Swerve extends SubsystemBase {
 
     /*Vision Functions */
     public void updateVisionLocalization(){
-        m_PoseEstimator.update(getGyroYaw(), getModulePositions());
-
         boolean useMegaTag2 = Constants.useMegaTag2; //This is a work around because otherwise I get dead code warnings and it looks bad. 
         boolean doRejectUpdate = false;
         if(useMegaTag2 == false){
@@ -229,13 +214,15 @@ public class Swerve extends SubsystemBase {
         else if (useMegaTag2 == true){
             LimelightHelpers.SetRobotOrientation(Constants.limelightName, m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
             LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.limelightName);
-            if(Math.abs(gyro.getRate()) > 720) {doRejectUpdate = true;}// If the angular velocity is greater than 720 degrees per second, ignore vision updates
-            if(mt2.tagCount == 0){doRejectUpdate = true;}
-            if(!doRejectUpdate){
-                m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-                m_PoseEstimator.addVisionMeasurement(
-                    mt2.pose,
-                    mt2.timestampSeconds);
+            if(mt2 != null){
+                if(Math.abs(gyro.getRate()) > 720) {doRejectUpdate = true;}// If the angular velocity is greater than 720 degrees per second, ignore vision updates
+                if(mt2.tagCount == 0){doRejectUpdate = true;}
+                if(!doRejectUpdate){
+                    m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+                    m_PoseEstimator.addVisionMeasurement(
+                        mt2.pose,
+                        mt2.timestampSeconds);
+            }
             }
         }
     }

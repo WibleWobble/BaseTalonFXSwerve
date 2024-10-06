@@ -176,16 +176,19 @@ public class Swerve extends SubsystemBase {
         }
     }
 
+    public void updateOdometry(){
+        m_PoseEstimator.update(getGyroYaw(), getModulePositions());
+    }
     public void updateLocalization(){
-        //m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
-        //SmartDashboard.putData("Field", m_Field);
+        m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
+        SmartDashboard.putData("Field", m_Field);
     }
 
     @Override
     public void periodic(){
         updateVisionLocalization();
         m_PoseEstimator.update(getGyroYaw(), getModulePositions());
-        //updateLocalization();
+        updateLocalization();
 
         for(SwerveModule mod : mSwerveMods){
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
@@ -222,7 +225,7 @@ public class Swerve extends SubsystemBase {
                 if(Math.abs(gyro.getRate()) > 720) {doRejectUpdate = true;}// If the angular velocity is greater than 720 degrees per second, ignore vision updates
                 if(mt2.tagCount == 0){doRejectUpdate = true;}
                 if(!doRejectUpdate){
-                    m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+                    m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
                     m_PoseEstimator.addVisionMeasurement(
                         mt2.pose,
                         mt2.timestampSeconds);

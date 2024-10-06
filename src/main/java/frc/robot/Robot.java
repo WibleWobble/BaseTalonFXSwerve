@@ -23,7 +23,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
+  private Field2d field = new Field2d();
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -57,6 +57,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    SmartDashboard.putString("Does it work?", "Yes!");
+
+    m_robotContainer.getSwerveSubsytem().updateVisionLocalization();
+    m_robotContainer.getSwerveSubsytem().updateOdometry();
+    field.setRobotPose(m_robotContainer.getSwerveSubsytem().getPose());
+    SmartDashboard.putData("Disabled Field", field);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.util.Units;
 
 public class Swerve extends SubsystemBase {
     public SwerveModule[] mSwerveMods;
@@ -49,7 +50,7 @@ public class Swerve extends SubsystemBase {
                 Constants.Swerve.swerveKinematics, 
                 getGyroYaw(), 
                 getModulePositions(), 
-                new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0)),
+                new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(180)),
                     VecBuilder.fill(0.05, 0.05, Math.toRadians(5)),
                     VecBuilder.fill(0.5, 0.5, Math.toRadians(30)));
 
@@ -121,7 +122,7 @@ public class Swerve extends SubsystemBase {
 
     /*Get Info Functions */
     public Pose2d getPose() {return m_PoseEstimator.getEstimatedPosition();}
-    public Rotation2d getGyroYaw() {return Rotation2d.fromDegrees(gyro.getYaw().getValue());}
+    public Rotation2d getGyroYaw() {return (Rotation2d.fromDegrees(gyro.getYaw().getValue()-180));}
     public Rotation2d getHeading(){return getPose().getRotation();}
     public ChassisSpeeds getRobotRelativeSpeeds(){return Constants.Swerve.swerveKinematics.toChassisSpeeds(getModuleStates());}
     
@@ -203,19 +204,20 @@ public class Swerve extends SubsystemBase {
         boolean doRejectUpdate = false;
         if(useMegaTag2 == false){
             LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.limelightName);
-            
-            if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1){
-                if(mt1.rawFiducials[0].ambiguity > .7){doRejectUpdate = true;}
-                if(mt1.rawFiducials[0].distToCamera > 3){doRejectUpdate = true;}
-            }
+            if(mt1 != null){
+                if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1){
+                    if(mt1.rawFiducials[0].ambiguity > .7){doRejectUpdate = true;}
+                    if(mt1.rawFiducials[0].distToCamera > 3){doRejectUpdate = true;}
+                }
 
-            if(mt1.tagCount == 0){doRejectUpdate = true;}
+                if(mt1.tagCount == 0){doRejectUpdate = true;}
 
-            if(!doRejectUpdate){
-                m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
-                m_PoseEstimator.addVisionMeasurement(
-                    mt1.pose,
-                    mt1.timestampSeconds);
+                if(!doRejectUpdate){
+                    m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5, Units.degreesToRadians(10)));
+                    m_PoseEstimator.addVisionMeasurement(
+                        mt1.pose,
+                        mt1.timestampSeconds);
+                }
             }
         }
         else if (useMegaTag2 == true){
@@ -225,7 +227,7 @@ public class Swerve extends SubsystemBase {
                 if(Math.abs(gyro.getRate()) > 720) {doRejectUpdate = true;}// If the angular velocity is greater than 720 degrees per second, ignore vision updates
                 if(mt2.tagCount == 0){doRejectUpdate = true;}
                 if(!doRejectUpdate){
-                    m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
+                    m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,Units.degreesToRadians(999999999)));
                     m_PoseEstimator.addVisionMeasurement(
                         mt2.pose,
                         mt2.timestampSeconds);

@@ -25,7 +25,7 @@ public final class Constants {
     
     public static final double stickDeadband = 0.1;
     public static final String limelightName = "limelight";
-    public static final boolean useMegaTag2 = true; //Set to false to use MegaTag1
+    public static final boolean useMegaTag2 = false; //Set to false to use MegaTag1
 
     public static final class Swerve {
         public static final int pigeonID = 0; 

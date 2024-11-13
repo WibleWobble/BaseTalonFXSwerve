@@ -81,7 +81,7 @@ public class Swerve extends SubsystemBase {
     }
 
     /*Drive Function */
-    public void driveRobotRelative (ChassisSpeeds speeds){
+    public void driveRobotRelative (ChassisSpeeds speeds) {
         boolean fieldRelative = false;
         //drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond, false, false);
         SwerveModuleState[] swerveModuleStates =
@@ -89,14 +89,14 @@ public class Swerve extends SubsystemBase {
                 fieldRelative ? speeds:speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
 
-        for(SwerveModule mod : mSwerveMods){
+        for(SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], false);
         }
     
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        //if(fieldRelative){fieldRelative = false;}
+        //if(fieldRelative) {fieldRelative = false;}
         //else{fieldRelative = true; }
         
         SwerveModuleState[] swerveModuleStates =
@@ -114,7 +114,7 @@ public class Swerve extends SubsystemBase {
                                 );
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.Swerve.maxSpeed);
 
-        for(SwerveModule mod : mSwerveMods){
+        for(SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
         }
     }    
@@ -122,30 +122,32 @@ public class Swerve extends SubsystemBase {
     /*Get Info Functions */
     public Pose2d getPose() {return m_PoseEstimator.getEstimatedPosition();}
     public Rotation2d getGyroYaw() {return Rotation2d.fromDegrees(gyro.getYaw().getValue());}
-    public Rotation2d getHeading(){return getPose().getRotation();}
-    public ChassisSpeeds getRobotRelativeSpeeds(){return Constants.Swerve.swerveKinematics.toChassisSpeeds(getModuleStates());}
+    public Rotation2d getHeading() {return getPose().getRotation();}
+    public ChassisSpeeds getRobotRelativeSpeeds() {return Constants.Swerve.swerveKinematics.toChassisSpeeds(getModuleStates());}
     
-    public SwerveModuleState[] getModuleStates(){
+    public SwerveModuleState[] getModuleStates() {
         SwerveModuleState[] states = new SwerveModuleState[4];
-        for(SwerveModule mod : mSwerveMods){
+        for(SwerveModule mod : mSwerveMods) {
             states[mod.moduleNumber] = mod.getState();
         }
-        return states;}
+        return states;
+    }
 
-    public SwerveModulePosition[] getModulePositions(){
+    public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] positions = new SwerveModulePosition[4];
-        for(SwerveModule mod : mSwerveMods){
+        for(SwerveModule mod : mSwerveMods) {
             positions[mod.moduleNumber] = mod.getPosition();
         }
-        return positions;}
+        return positions;
+    }
 
-    public boolean isInZone(){
+    public boolean isInZone() {
         Pose2d estimatedPose = getPose();
         if(
             estimatedPose.getX() > Constants.RegistrationSafety.safetyZoneMinX && 
             estimatedPose.getX() < Constants.RegistrationSafety.safetyZoneMaxX &&
             estimatedPose.getY() > Constants.RegistrationSafety.safetyZoneMinY &&
-            estimatedPose.getY() < Constants.RegistrationSafety.safetyZoneMaxY  ){
+            estimatedPose.getY() < Constants.RegistrationSafety.safetyZoneMaxY  ) {
                 return true;
             } else {
                 return false;
@@ -153,44 +155,44 @@ public class Swerve extends SubsystemBase {
     }
 
     /*Setter Funtions */
-    public void setPose(Pose2d pose) {m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);}
-    public void setHeading(Rotation2d heading){
+    public void setPose(Pose2d pose) { m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose); }
+    public void setHeading(Rotation2d heading) {
         m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), heading)); 
     }
 
     public void setModuleStates(SwerveModuleState[] desiredStates) { //Used in example auto
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Swerve.maxSpeed);   
-        for(SwerveModule mod : mSwerveMods){
+        for(SwerveModule mod : mSwerveMods) {
             mod.setDesiredState(desiredStates[mod.moduleNumber], false);
         }
     }
 
     /*Zero/Reset Functions */
-    public void zeroHeading(){
+    public void zeroHeading() {
         m_PoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
     }
     
-    public void resetModulesToAbsolute(){
-        for(SwerveModule mod : mSwerveMods){
+    public void resetModulesToAbsolute() {
+        for(SwerveModule mod : mSwerveMods) {
             mod.resetToAbsolute();
         }
     }
 
-    public void updateOdometry(){
+    public void updateOdometry() {
         m_PoseEstimator.update(getGyroYaw(), getModulePositions());
     }
-    public void updateLocalization(){
+    public void updateLocalization() {
         m_Field.setRobotPose(m_PoseEstimator.getEstimatedPosition());
         SmartDashboard.putData("Field", m_Field);
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         updateVisionLocalization();
         m_PoseEstimator.update(getGyroYaw(), getModulePositions());
         updateLocalization();
 
-        for(SwerveModule mod : mSwerveMods){
+        for(SwerveModule mod : mSwerveMods) {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Angle", mod.getPosition().angle.getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
@@ -198,33 +200,33 @@ public class Swerve extends SubsystemBase {
     }
 
     /*Vision Functions */
-    public void updateVisionLocalization(){
+    public void updateVisionLocalization() {
         boolean useMegaTag2 = Constants.useMegaTag2; //This is a work around because otherwise I get dead code warnings and it looks bad. 
         boolean doRejectUpdate = false;
-        if(useMegaTag2 == false){
+        if(useMegaTag2 == false) {
             LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.limelightName);
             
-            if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1){
-                if(mt1.rawFiducials[0].ambiguity > .7){doRejectUpdate = true;}
-                if(mt1.rawFiducials[0].distToCamera > 3){doRejectUpdate = true;}
+            if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
+                if(mt1.rawFiducials[0].ambiguity > .7) {doRejectUpdate = true;}
+                if(mt1.rawFiducials[0].distToCamera > 3) {doRejectUpdate = true;}
             }
 
-            if(mt1.tagCount == 0){doRejectUpdate = true;}
+            if(mt1.tagCount == 0) {doRejectUpdate = true;}
 
-            if(!doRejectUpdate){
+            if(!doRejectUpdate) {
                 m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
                 m_PoseEstimator.addVisionMeasurement(
                     mt1.pose,
                     mt1.timestampSeconds);
             }
         }
-        else if (useMegaTag2 == true){
+        else if (useMegaTag2 == true) {
             LimelightHelpers.SetRobotOrientation(Constants.limelightName, m_PoseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
             LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.limelightName);
-            if(mt2 != null){
+            if(mt2 != null) {
                 if(Math.abs(gyro.getRate()) > 720) {doRejectUpdate = true;}// If the angular velocity is greater than 720 degrees per second, ignore vision updates
-                if(mt2.tagCount == 0){doRejectUpdate = true;}
-                if(!doRejectUpdate){
+                if(mt2.tagCount == 0) {doRejectUpdate = true;}
+                if(!doRejectUpdate) {
                     m_PoseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
                     m_PoseEstimator.addVisionMeasurement(
                         mt2.pose,
